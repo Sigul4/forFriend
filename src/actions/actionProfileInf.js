@@ -6,7 +6,7 @@ async (dispatch) => {
   const gqlQuery = 
   `query users($id: String){
     UserFindOne(query:$id) {
-      nick createdAt login nick avatar{url} likesCount followers{_id} following{_id}
+      _id nick createdAt login nick avatar{url} likesCount followers{_id} following{_id}
     }
   }`
     const gqlPromise = gql(gqlQuery, {"id": JSON.stringify([{_id}])})

@@ -1,8 +1,12 @@
 import gql           from "../helpers/gql"
 import actionPromise from "./actionPromise"
+import actionAboutMe    from "../actions/actionAboutMe";
 
 const actionProfilePosts = (_id, howMuchToShip=0) =>
-async (dispatch) => {
+async (dispatch,getState) => {
+    console.log('actionProfilePosts')
+    
+    await dispatch(actionAboutMe(getState().auth.payload.sub.id))
     const gqlQuery = 
     `query PostFind($query:String){
         PostFind(query:$query){

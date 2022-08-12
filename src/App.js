@@ -28,18 +28,17 @@ import history                          from "./data/history.js";
 const CLoginCategory    = connect(null,     {onLogin: actionFullLogin})       (LoginPage)
 const CRegisterCategory = connect(null,     {onLogin: actionFullRegister})    (RegisterPage)
 const CHeader           = connect(state => ({userNick: state?.auth?.payload?.sub?.acl[1], userId:state?.auth?.payload?.sub?.id}),{Logout: actionAuthLogout}) (Header)
-const CProfilePage      = connect(state => ({props: state?.promise?.ProfileInf?.payload, posts: state?.promise?.ProfilePosts?.payload }), {onLoadUserInf: actionProfileInf, onLoadUserPosts:actionProfilePosts, postLike:actionAddLike, postUnlike:actionRemoveLike, onFollow: actionFollow, onUnfollow: actionUnfollow})(UserPage)
-const CPostsPage        = connect(state => ({Post: state?.promise?.AllPosts?.payload}), {onPostLoad: actionAllPosts, postLike:actionAddLike, postUnlike:actionRemoveLike}) (ContentPage)
-// проверить через getState про то залогинен ли actionAboutMe в actionAllPosts
+const CProfilePage      = connect(state => ({props: state?.promise?.ProfileInf?.payload, posts: state?.promise?.ProfilePosts?.payload, aboutMe: state?.promise?.aboutMe?.payload }), {onLoadUserInf: actionProfileInf, onLoadUserPosts:actionProfilePosts, postLike:actionAddLike, postUnlike:actionRemoveLike, onFollow: actionFollow, onUnfollow: actionUnfollow})(UserPage)
+const CPostsPage        = connect(state => ({Post: state?.promise?.AllPosts?.payload, aboutMe: state?.promise?.aboutMe?.payload}), {onPostLoad: actionAllPosts, postLike:actionAddLike, postUnlike:actionRemoveLike}) (ContentPage)
+
 const Content = () =>
 <div className='Content' style={{paddingTop: "63px"}} >
   <Route path="/register"      component={CRegisterCategory} /> 
   <Route path="/login"         component={CLoginCategory} /> 
-  {/* <Route path="/"              component={CRegisterCategory} />  */}
   <Route path="/content"       component={CPostsPage} /> 
   <Route path="/profile/:_id"  component={CProfilePage} /> 
 </div>
-// Content через connect узнавать залогинен ли 
+
 
 const App = () =>
     <Router history={history}>

@@ -4,7 +4,6 @@ import thunk                            from "redux-thunk";
 import actionAuthLogin                  from "../actions/actionAuthLogin";
 import actionAboutMe                    from "../actions/actionAboutMe";
 
-
 const store = createStore(combinedReducers, applyMiddleware(thunk))
 if (localStorage.authToken){
     store.dispatch(actionAuthLogin(localStorage.authToken))
@@ -12,6 +11,5 @@ if (localStorage.authToken){
 }
 
 store.subscribe(() => console.log(store.getState()));
-
 
 export default store;

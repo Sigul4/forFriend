@@ -3,9 +3,9 @@ import actionPromise    from "./actionPromise"
 import actionAboutMe    from "../actions/actionAboutMe";
 
 
-const actionAllPosts = (howMuchToShip=0) =>
+const actionAllPosts = (howMuchToSkip=0) =>
 async (dispatch, getState) => {
-        console.log('actionAllPosts')
+        console.log('actionAllPosts, we skip ',howMuchToSkip)
         
         await dispatch(actionAboutMe(getState().auth.payload.sub.id))
         const state = getState()
@@ -20,7 +20,7 @@ async (dispatch, getState) => {
                 owner{_id login} likes{_id owner{_id}}
             }
         }`
-        const gqlPromise = gql(gqlQuery, {"query":  JSON.stringify([{___owner: {$in: arrOfFollows}},{limit:[4],skip:[howMuchToShip],sort:[{_id:-1}]}])})
+        const gqlPromise = gql(gqlQuery, {"query":  JSON.stringify([{___owner: {$in: arrOfFollows}},{limit:[4],skip:[howMuchToSkip],sort:[{_id:-1}]}])})
         const action     = actionPromise('AllPosts', gqlPromise) 
         await dispatch(action)
     }

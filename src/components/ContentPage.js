@@ -2,11 +2,12 @@ import CardMedia from '@mui/material/CardMedia';
 import List from '@mui/material/List';
 import { useEffect, useState } from 'react';
 import '../App.css';
-import CreatePost from './CreatePost.js';
+import CreatePost from './ChangePost.js';
 import InfoCard from './infoCard.js';
 import Posty from './Post.js';
+import PostWrapper from './PostWrapper';
 
-function ContentPage({Post, onPostLoad, postLike, postUnlike}) {
+function ContentPage({Post, aboutMe, onPostLoad, postLike, postUnlike}) {
     
     const [Posts, ChangePosts] = useState([])
     const [SmthToView, ChangeView] = useState('')
@@ -16,7 +17,7 @@ function ContentPage({Post, onPostLoad, postLike, postUnlike}) {
     useEffect(()=>{
         onPostLoad(howMuchToSkip)
         ChangeHowMuch(howMuchToSkip => howMuchToSkip+4)
-        SetTakingData(false)
+        if(!!aboutMe)SetTakingData(false)
     },[takingData])
 
     useEffect(()=>{
@@ -33,7 +34,7 @@ function ContentPage({Post, onPostLoad, postLike, postUnlike}) {
     },[Post])
     
     useEffect(()=>{
-        if (Posts) ChangeView(Posts.map(post => <Posty key={post._id} postId={post._id} title = {`${post.title}`} text={`${post.text}`} createdAt={`${post.createdAt}`} comments={post.comments} owner={post.owner} images={post.images} likes={post.likes} postLike={postLike} postUnlike={postUnlike} className="post"/>))
+        if (Posts && !!aboutMe) ChangeView(Posts.map(post => <PostWrapper key={post._id} post={post} aboutMe={aboutMe} postLike={postLike} postUnlike={postUnlike} className="post"/>))
     },[Posts])
 
 

@@ -2,7 +2,7 @@ import gql            from "../helpers/gql"
 import actionProfileInf from "./actionProfileInf"
 
 const actionUnfollow = (_id) =>
-async (dispatch) => {
+async (dispatch, getState) => {
     console.log()
     const gqlQueryAllMyFollows = 
         `query userF($query:String){
@@ -11,7 +11,7 @@ async (dispatch) => {
             }
         }`
 
-    const gqlFollowsPromise = gql(gqlQueryAllMyFollows, {"query": JSON.stringify([{_id:localStorage.userId}])})
+    const gqlFollowsPromise = gql(gqlQueryAllMyFollows, {"query": JSON.stringify([{_id:getState().promise?.aboutMe?.payload?._id}])})
         
     const preventFollows = await gqlFollowsPromise
     
@@ -25,7 +25,7 @@ async (dispatch) => {
                 nick createdAt login nick avatar{url} likesCount followers{_id} following{_id}
             }
         }`
-    await gql(gqlQuery, {"myId":localStorage.userId, "Id": preventFollows.following})
+    await gql(gqlQuery, {"myId":getState().promise?.aboutMe?.payload?._id, "Id": preventFollows.following})
     await dispatch(actionProfileInf(_id))
     
 }

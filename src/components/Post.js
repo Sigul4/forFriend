@@ -1,6 +1,7 @@
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import actionNewComment from "../actions/actionNewComment";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import ShareIcon from '@mui/icons-material/Share';
 import Avatar from '@mui/material/Avatar';
@@ -13,9 +14,12 @@ import { red } from '@mui/material/colors';
 import IconButton from '@mui/material/IconButton';
 import { styled } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
+import { TextField, Box, Button } from '@mui/material';
 import * as React from 'react';
-import Carusel from './CaruselOfPictures';
 import { Link } from 'react-router-dom';
+import Carusel from './CaruselOfPictures';
+import Comments from './Comments.js'
+import { connect } from 'react-redux';
 
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -28,8 +32,10 @@ const ExpandMore = styled((props) => {
   }),
 }));
 
-export default function RecipeReviewCard({postId, title, text, createdAt,comments, owner, images, likes, postLike, postUnlike}) {
+export default function Post({userId, postId, title, text, createdAt,comments, owner, images, likes, postLike, postUnlike, onChangePost}) {
+  const [myComments, changeComments] = React.useState(comments);
   const [expanded, setExpanded] = React.useState(false);
+  const [commentText, ChangeText] = React.useState('');
 
   const date = new Date(createdAt*1).toDateString()
 
@@ -38,7 +44,7 @@ export default function RecipeReviewCard({postId, title, text, createdAt,comment
     setExpanded(!expanded);
   };
 
-  const likesInf = Object.values(likes).map(like => {if(like.owner._id === localStorage.userId) return like._id}).filter(element => element !== undefined)
+  const likesInf = Object.values(likes).map(like => {if(like.owner._id === userId) return like._id}).filter(element => element !== undefined)
   const [statusOfLike, setStatus] = React.useState(!!likesInf.length)
 
   return (
@@ -52,9 +58,9 @@ export default function RecipeReviewCard({postId, title, text, createdAt,comment
           </Link>
         }
         action={
-          <IconButton aria-label="settings">
-            <MoreVertIcon />
-          </IconButton>
+          <Button onClick={onChangePost}>
+            Change
+          </Button>
         }
         
         subheader={date.substr(0,30)}
@@ -62,8 +68,7 @@ export default function RecipeReviewCard({postId, title, text, createdAt,comment
       />
       <CardContent style={{display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         
-        {/* {console.log('Final Images HERE', images, !!images)} */}
-        {!!images ? <Carusel images={images} /> : ''}
+        {!!images ? <Carusel images={images} /> : ''} 
         <h3>
           {title === 'null' ? '': title}
         </h3>
@@ -94,7 +99,28 @@ export default function RecipeReviewCard({postId, title, text, createdAt,comment
       <Collapse in={expanded} timeout="auto" unmountOnExit>
         <CardContent>
           <Typography textAlign="left" paragraph>
-            {!!comments ? comments.map(comment => <p key="comment._id">{comment.text}</p>) : ''}
+          {/* comments{_id createdAt text likesCount owner{_id login} answerTo{_id}} */}
+            <Box sx={{marginTop: 10}}>
+                <TextField
+                    sx={{width: '100%'}}
+                    id="outlined-multiline-static"
+                    label="Multiline"
+                    multiline
+                    rows={4}
+                    onChange = {(e) => {ChangeText(e.target.value)}}
+                    value={commentText}
+                    />
+                <Button onClick={ async () => {
+                  console.log(postId); 
+                  const newComments = await actionNewComment(commentText, postId)
+                  console.log('myComments',myComments, newComments)
+                  changeComments(myComments => myComments = [...myComments, newComments])
+                  console.log('myComments',myComments);
+                  ChangeText('')
+                }} >Add Comments</Button>
+            </Box>  
+            {/* {myComments?.length} */}
+            {!!myComments ? <Comments comments={myComments} postId={postId}/> : ''}
           </Typography>
         </CardContent>
       </Collapse>

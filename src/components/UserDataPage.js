@@ -11,16 +11,18 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { useEffect, useState } from 'react';
 import '../App.css';
-import CreatePost from './CreatePost.js';
+import CreatePost from './ChangePost.js';
 import Post from './Post.js';
+import PostWrapper from './PostWrapper';
 
-const UserPage = ({match: {params: {_id}}, props = {}, posts = [], onLoadUserInf, onLoadUserPosts, postLike, postUnlike, onFollow, onUnfollow }) => {
 
-    const [myPosts,    ChangePostList]   = useState([])
-    let   [SmthToView, ChangeView]       = useState([])
-    const [follow,     SetFollow]        = useState()
-    let   [howMuchToSkip, ChangeHowMuch] = useState(0)
-    const [takingData, SetTakingData] = useState(false)
+const UserPage = ({match: {params: {_id}}, props = {}, posts = [], aboutMe, onLoadUserInf, onLoadUserPosts, postLike, postUnlike, onFollow, onUnfollow }) => {
+    // console.log("!!!!!!!!!aboutMe", aboutMe)
+    const [myPosts,       ChangePostList]   = useState([])
+    let   [SmthToView,    ChangeView    ]   = useState([])
+    const [follow,        SetFollow     ]   = useState()
+    let   [howMuchToSkip, ChangeHowMuch ]   = useState(0)
+    const [takingData,    SetTakingData ]   = useState(false)
     
     
     useEffect(()=>{
@@ -28,7 +30,9 @@ const UserPage = ({match: {params: {_id}}, props = {}, posts = [], onLoadUserInf
         onLoadUserInf(_id)
         onLoadUserPosts(_id,howMuchToSkip)
         ChangeHowMuch(howMuchToSkip => howMuchToSkip+4)
+        // console.log('aboutMe',!!aboutMe,aboutMe)
         SetTakingData(false)
+        console.log('howMuchToSkip',howMuchToSkip)
     },[_id, takingData])
     
     
@@ -42,13 +46,14 @@ const UserPage = ({match: {params: {_id}}, props = {}, posts = [], onLoadUserInf
 
     useEffect(()=>{
         // console.log('Меняю инфй о тебе, проверяй')
-        SetFollow(props?.followers?.map((follower) => follower._id === localStorage.userId).includes(true))
-    },[props])
+        if(!!aboutMe)SetFollow(props?.followers?.map((follower) => follower._id === aboutMe._id).includes(true))
+    },[])
     
     useEffect(()=>{
         console.log('Меняю посты, проверяй',posts)
         if (Array.isArray(posts))ChangePostList([...myPosts,...posts])
-        ChangeView(myPosts.map(post => <Post key={post._id} postId={post._id} title = {`${post.title}`} text={`${post.text}`} createdAt={`${post.createdAt}`} comments={post.comments} owner={post.owner} images={post.images} likes={post.likes} postLike={postLike} postUnlike={postUnlike} className="post"/> ))
+        // <PostWrapper>
+        if(!!aboutMe)ChangeView(myPosts.map(post => <PostWrapper key={post._id} post={post} aboutMe={aboutMe} postLike={postLike} postUnlike={postUnlike} className="post"/> ))
         console.log('SmthToView, myPosts, posts',SmthToView, myPosts, posts)
     },[posts])
     
@@ -87,13 +92,13 @@ const UserPage = ({match: {params: {_id}}, props = {}, posts = [], onLoadUserInf
                                 <Avatar sx={{ bgcolor: red[500],width: 100, height: 100, }} alt='' aria-label="recipe" src="http://pics.livejournal.com/ucmopucm/pic/000a610c"/>
                                 }/>
                                 
-                            <Typography  sx={{position: "relative", left:20, top:-75}}>
+                            <Typography component={'span'} variant={'body2'}  sx={{position: "relative", left:20, top:-75}}>
                                 <h2>{props.login}</h2>
                                 {/* <p>{Object.values(props)[2]}</p> */}
                             </Typography>
                         </Box>
                         <Box sx={{width: 200}}>
-                        {_id !== localStorage.userId? !follow ? <Button variant="contained" onClick={() => {SetFollow(!follow); onFollow(_id)}}>Subscribe</Button>: <Button variant="outlined" onClick={() => {SetFollow(!follow); onUnfollow(_id)}}>Unsubscribe</Button> :''}
+                        {!!aboutMe && _id !== aboutMe._id? !follow ? <Button variant="contained" onClick={() => {SetFollow(!follow); onFollow(_id)}}>Subscribe</Button>: <Button variant="outlined" onClick={() => {SetFollow(!follow); onUnfollow(_id)}}>Unsubscribe</Button> :''}
                         </Box>
                         <Stack
                         direction="row"
@@ -109,7 +114,7 @@ const UserPage = ({match: {params: {_id}}, props = {}, posts = [], onLoadUserInf
                     </Stack>   
                             
                     <div className="PostList">
-                        <CreatePost/>
+                        <CreatePost onChange={()=>{console.log('addPost')}}/>
                         {SmthToView}
                     </div>
                     

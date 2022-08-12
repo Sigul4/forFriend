@@ -13,8 +13,7 @@ export default function authReducer(state={}, {type, token}){
         const payload = jwtDecode(token)
         if (payload)
             // console.log(payload)
-            localStorage.userId = payload.sub.id
-            localStorage.userLogin = payload.sub.login
+            // localStorage.userId = payload.sub.id
             return {token, payload}
     }
     if (type === 'AUTH_LOGOUT'){
