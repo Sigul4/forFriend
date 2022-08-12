@@ -1,21 +1,66 @@
-import React, { useState, useEffect }   from 'react';
-import Post                             from './Post';
-import CreatePost                       from './ChangePost.js';
+import React, { useState, useEffect } from "react";
+import Post from "./Post";
+import CreatePost from "./ChangePost.js";
+import { Alert, AlertTitle, Button } from "@mui/material";
 
-export default function PostWrapper({post, aboutMe, postLike, postUnlike}) {
+export default function PostWrapper({ post, aboutMe, postLike, postUnlike, changePostsToDelete, recoverPost}) {
+    const [changer, switchChange       ] = useState(true);
+    const [postData, changeData        ] = useState(post);
+    const [deletedPost, changeDeletness] = useState(false)
 
-    const [changer, switchChange] = useState(true)
+    useEffect(() => {
+        console.log("changer", changer);
+    }, [changer]);
 
-    useEffect(()=>{
-        console.log("changer",changer)
-    },[changer])
+    const deletePost = () =>{
+        changePostsToDelete(postData._id)
+        changeDeletness(!deletedPost)
+    }
 
+    const recover = (id) =>{
+        recoverPost(id)
+        changeDeletness(!deletedPost)
+    }
+
+    const showData = async (data) => {
+        changeData(await data);
+        switchChange(!changer);
+    };
     return (
         <>
-            {!!changer 
-                ? <Post  className='post' key={post._id} userId={aboutMe._id} postId={post._id} title = {`${post.title}`} text={`${post.text}`} createdAt={`${post.createdAt}`} comments={post.comments} owner={post.owner} images={post.images} likes={post.likes} postLike={postLike} postUnlike={postUnlike} onChangePost={() => switchChange(!changer)} />
-                : <CreatePost _id={post._id} defaultTitle={post.title} defaultText={post.text} defaultImages={post.images} onStopChange={() => switchChange(!changer)} />
-            }
+        {!!changer ? (
+            !deletedPost
+                ?<Post
+                    className="post"
+                    userId={aboutMe._id}
+                    postId={postData._id}
+                    title={`${postData.title}`}
+                    text={`${postData.text}`}
+                    createdAt={`${postData.createdAt}`}
+                    comments={postData.comments}
+                    owner={postData.owner}
+                    images={postData.images}
+                    likes={postData.likes}
+                    postLike={postLike}
+                    postUnlike={postUnlike}
+                    onChangePost={() => switchChange(!changer)}
+                    onDeletePost={deletePost}
+                />
+                :<Alert style={{width: 400, margin: 40}} severity="error">
+                    <AlertTitle>Post has been deleted</AlertTitle>
+                    <p>if u wont to recover this one, just click here <br/>{`===>`}
+                    <Button onClick={recover}><strong>Give me back my post!!!!111</strong></Button></p>
+                </Alert>
+        ) : (
+            <CreatePost
+                _id={postData._id}
+                defaultTitle={postData.title}
+                defaultText={postData.text}
+                defaultImages={postData.images}
+                onChange={showData}
+                onStopChange={() => switchChange(!changer)}
+            />
+        )}
         </>
-    )
+    );
 }

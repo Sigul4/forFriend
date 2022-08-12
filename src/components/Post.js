@@ -1,9 +1,8 @@
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import actionNewComment from "../actions/actionNewComment";
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import ShareIcon from '@mui/icons-material/Share';
+import { Box, Button, TextField } from '@mui/material';
 import Avatar from '@mui/material/Avatar';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
@@ -11,15 +10,14 @@ import CardContent from '@mui/material/CardContent';
 import CardHeader from '@mui/material/CardHeader';
 import Collapse from '@mui/material/Collapse';
 import { red } from '@mui/material/colors';
-import IconButton from '@mui/material/IconButton';
-import { styled } from '@mui/material/styles';
-import Typography from '@mui/material/Typography';
-import { TextField, Box, Button } from '@mui/material';
-import * as React from 'react';
-import { Link } from 'react-router-dom';
-import Carusel from './CaruselOfPictures';
-import Comments from './Comments.js'
-import { connect } from 'react-redux';
+import IconButton       from '@mui/material/IconButton';
+import { styled }       from '@mui/material/styles';
+import Typography       from '@mui/material/Typography';
+import * as React       from 'react';
+import { Link }         from 'react-router-dom';
+import actionNewComment from "../actions/actionNewComment";
+import Carusel          from './CaruselOfPictures';
+import Comments         from './Comments.js';
 
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -32,12 +30,14 @@ const ExpandMore = styled((props) => {
   }),
 }));
 
-export default function Post({userId, postId, title, text, createdAt,comments, owner, images, likes, postLike, postUnlike, onChangePost}) {
+export default function Post({userId, postId, title, text, createdAt,comments, owner, images, likes, postLike, postUnlike, onChangePost, onDeletePost}) {
   const [myComments, changeComments] = React.useState(comments);
-  const [expanded, setExpanded] = React.useState(false);
-  const [commentText, ChangeText] = React.useState('');
+  const [expanded,      setExpanded] = React.useState(false);
+  const [commentText,    ChangeText] = React.useState('');
 
   const date = new Date(createdAt*1).toDateString()
+
+  console.log('likes',likes)
 
   // console.log('owner', owner)
   const handleExpandClick = () => {
@@ -57,10 +57,23 @@ export default function Post({userId, postId, title, text, createdAt,comments, o
             <strong><h3>{owner.login !== null ? owner.login : 'Анонимная парасятина!'}</h3></strong>
           </Link>
         }
-        action={
-          <Button onClick={onChangePost}>
-            Change
-          </Button>
+        action={userId === owner._id
+                  ?<>
+                  <Button 
+                    onClick={onChangePost}
+                  >
+                    Change
+                  </Button>
+                  <Button       
+                    sx={{backgroundColor: 'red'}} 
+                    variant="contained"
+                    onClick={onDeletePost}
+                  >
+                    Delete
+                  </Button>
+                  
+                  </>
+                  :''
         }
         
         subheader={date.substr(0,30)}
@@ -118,8 +131,7 @@ export default function Post({userId, postId, title, text, createdAt,comments, o
                   console.log('myComments',myComments);
                   ChangeText('')
                 }} >Add Comments</Button>
-            </Box>  
-            {/* {myComments?.length} */}
+            </Box>
             {!!myComments ? <Comments comments={myComments} postId={postId}/> : ''}
           </Typography>
         </CardContent>

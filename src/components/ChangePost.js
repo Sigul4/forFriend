@@ -63,7 +63,7 @@ export default function CreatePost ({_id, defaultTitle='', defaultText='', defau
                     </div>
                     Select images: {images?.length}{images?.length === 0}{console.log('imagesssss',images?.length === 0)}
                     {/* <Button onClick={()=>{}}><h3>Drop to start values</h3></Button> */}
-                    <Button onClick={() => {images?.length === 0 ? newPost(title, text, _id): newPostWithImages(title, text, imagesIds, _id);}}><h3>Add post</h3></Button>
+                    <Button onClick={() => {images?.length === 0 ? onChange(newPost(title, text, _id)): onChange(newPostWithImages(title, text, imagesIds, _id));}}><h3>Add post</h3></Button>
                 </form> 
             </Card>
     )

@@ -11,8 +11,8 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { useEffect, useState } from 'react';
 import '../App.css';
+import deletePost from "../helpers/deletePost";
 import CreatePost from './ChangePost.js';
-import Post from './Post.js';
 import PostWrapper from './PostWrapper';
 
 
@@ -23,7 +23,20 @@ const UserPage = ({match: {params: {_id}}, props = {}, posts = [], aboutMe, onLo
     const [follow,        SetFollow     ]   = useState()
     let   [howMuchToSkip, ChangeHowMuch ]   = useState(0)
     const [takingData,    SetTakingData ]   = useState(false)
+    const [postsToDelete, changePostsToDelete] = useState([]);
     
+    const addPostToDelete = (id) =>{
+        changePostsToDelete(postsToDelete => postsToDelete = [...postsToDelete, id])
+    }    
+
+    const recoverPost = (id) =>{
+        changePostsToDelete(postsToDelete.filter(posts !== id))
+    }
+    
+    useEffect(() => {
+        return () => console.log('Posts To Delete',postsToDelete.map(id => deletePost(id)))
+    }, []);
+
     
     useEffect(()=>{
         console.log('Подгрузился, проверяй')
@@ -53,7 +66,7 @@ const UserPage = ({match: {params: {_id}}, props = {}, posts = [], aboutMe, onLo
         console.log('Меняю посты, проверяй',posts)
         if (Array.isArray(posts))ChangePostList([...myPosts,...posts])
         // <PostWrapper>
-        if(!!aboutMe)ChangeView(myPosts.map(post => <PostWrapper key={post._id} post={post} aboutMe={aboutMe} postLike={postLike} postUnlike={postUnlike} className="post"/> ))
+        if(!!aboutMe)ChangeView(myPosts.map(post => <PostWrapper key={post._id} post={post} aboutMe={aboutMe} postLike={postLike} postUnlike={postUnlike} changePostsToDelete={addPostToDelete} recoverPost={recoverPost} className="post"/> ))
         console.log('SmthToView, myPosts, posts',SmthToView, myPosts, posts)
     },[posts])
     
