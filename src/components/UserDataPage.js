@@ -1,5 +1,6 @@
 import AccessibleForwardIcon from '@mui/icons-material/AccessibleForward';
 import FavoriteIcon from '@mui/icons-material/Favorite';
+import ModeIcon from '@mui/icons-material/Mode';
 import SportsMartialArtsIcon from '@mui/icons-material/SportsMartialArts';
 import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
@@ -14,19 +15,25 @@ import '../App.css';
 import deletePost from "../helpers/deletePost";
 import CreatePost from './ChangePost.js';
 import PostWrapper from './PostWrapper';
+import Drop from './DropZone'
+import { Card, Hidden } from '@mui/material';
+import uploadFile from '../helpers/uploadFile';
 
 
-const UserPage = ({match: {params: {_id}}, props = {}, posts = [], aboutMe, onLoadUserInf, onLoadUserPosts, postLike, postUnlike, onFollow, onUnfollow }) => {
+const UserPage = ({match: {params: {_id}}, props = {}, posts = [], aboutMe, onLoadUserInf, onLoadUserPosts, onProfileChange, postLike, postUnlike, onFollow, onUnfollow }) => {
     // console.log("!!!!!!!!!aboutMe", aboutMe)
-    const [myPosts,       ChangePostList]   = useState([])
-    let   [SmthToView,    ChangeView    ]   = useState([])
-    const [follow,        SetFollow     ]   = useState()
-    let   [howMuchToSkip, ChangeHowMuch ]   = useState(0)
-    const [takingData,    SetTakingData ]   = useState(false)
-    const [postsToDelete, changePostsToDelete] = useState([]);
+    let   [SmthToView,    ChangeView         ]   = useState([])
+    const [takingData,    SetTakingData      ]   = useState(false)
+    const [follow,        SetFollow          ]   = useState()
+    const [postsToDelete, changePostsToDelete]   = useState([]);
+    const [avatarSrc,     changeAvatarSrc    ]   = useState('')
+    const [popUpDropMenu, changePopUpDropMenu]   = useState(false)
+    const [profileImage,   ChangeProfileImage]   = useState()
     
     const addPostToDelete = (id) =>{
-        changePostsToDelete(postsToDelete => postsToDelete = [...postsToDelete, id])
+        console.log('postData',id)
+        changePostsToDelete(postsToDelete.push(id))
+        console.log('postsToDelete',postsToDelete)
     }    
 
     const recoverPost = (id) =>{
@@ -34,18 +41,15 @@ const UserPage = ({match: {params: {_id}}, props = {}, posts = [], aboutMe, onLo
     }
     
     useEffect(() => {
-        return () => console.log('Posts To Delete',postsToDelete.map(id => deletePost(id)))
+        return () => console.log(postsToDelete,"Posts To Delete",postsToDelete.map(id => deletePost(id)))
     }, []);
 
     
     useEffect(()=>{
         console.log('Подгрузился, проверяй')
         onLoadUserInf(_id)
-        onLoadUserPosts(_id,howMuchToSkip)
-        ChangeHowMuch(howMuchToSkip => howMuchToSkip+4)
-        // console.log('aboutMe',!!aboutMe,aboutMe)
-        SetTakingData(false)
-        console.log('howMuchToSkip',howMuchToSkip)
+        onLoadUserPosts(_id)
+        console.log('takingData',takingData)
     },[_id, takingData])
     
     
@@ -58,29 +62,47 @@ const UserPage = ({match: {params: {_id}}, props = {}, posts = [], aboutMe, onLo
     },[])
 
     useEffect(()=>{
-        // console.log('Меняю инфй о тебе, проверяй')
+        if(!!aboutMe)console.log('Меняю инфй о тебе, проверяй', props?.followers?.map((follower) => follower._id === aboutMe._id).includes(true))
         if(!!aboutMe)SetFollow(props?.followers?.map((follower) => follower._id === aboutMe._id).includes(true))
-    },[])
+    },[props])
     
     useEffect(()=>{
-        console.log('Меняю посты, проверяй',posts)
-        if (Array.isArray(posts))ChangePostList([...myPosts,...posts])
-        // <PostWrapper>
-        if(!!aboutMe)ChangeView(myPosts.map(post => <PostWrapper key={post._id} post={post} aboutMe={aboutMe} postLike={postLike} postUnlike={postUnlike} changePostsToDelete={addPostToDelete} recoverPost={recoverPost} className="post"/> ))
-        console.log('SmthToView, myPosts, posts',SmthToView, myPosts, posts)
+        if(!!aboutMe)ChangeView(posts.map(post => <PostWrapper key={post._id} post={post} aboutMe={aboutMe} postLike={postLike} postUnlike={postUnlike} changePostsToDelete={addPostToDelete} recoverPost={recoverPost} className="post"/> ))
+        console.log('SmthToView, posts',SmthToView, posts)
     },[posts])
     
+    useEffect(()=>{
+        console.log('i`m changed',props?.avatar?.url, `http://hipstagram.node.ed.asmer.org.ua/${props?.avatar?.url}`, avatarSrc)
+        if(props?.avatar?.url)changeAvatarSrc(`http://hipstagram.node.ed.asmer.org.ua/${props?.avatar?.url}`)
+    },[props])
 
     function onScroll(e) {
         if(e.target.documentElement.scrollHeight - (e.target.documentElement.scrollTop + window.innerHeight) < 1){
-            SetTakingData(true)
-            console.log('Экшн ПОСЛЕ СКРОЛА ')
+            console.log('Экшн ПОСЛЕ СКРОЛА ', takingData)
+            SetTakingData(takingData => takingData = !takingData)
         }
     }
 
         return (
             
             <Box sx={{width: "100%",display: "flex", justifyContent: "center" }}>
+                {popUpDropMenu? <Card sx={{position:"fixed",top: 200,margin:"auto",height:400, zIndex:4, overflow:"hidden", background:"rgb(231,231,231)"}}>
+                                    <Drop style={{height:"100%"}}
+                                    imageData={(image) => {
+                                        console.log('!!!!!', image[0], `http://hipstagram.node.ed.asmer.org.ua/${image[0].url}`)
+                                        ChangeProfileImage(`http://hipstagram.node.ed.asmer.org.ua/${image[0].url}`)}} onUpload={uploadFile}/>
+
+                                    <div sx={{position:"absolute"}}></div>
+
+                                    <div style={{display: "flex", justifyContent:"center"}}>
+                                            <CardMedia
+                                                image={profileImage}
+                                                component="img"
+                                                sx={{margin:"10px", width:"55%"}}
+                                            />
+                                    </div>
+                                    <Button variant="contained" onClick={() => {}}>Change Profile Page</Button>
+                                </Card>: ''}
                 <Box sx={{maxWidth: 1200}}>
                     <Box sx={{display: "flex", justifyContent: "center"}}>
                         <CardMedia
@@ -102,11 +124,16 @@ const UserPage = ({match: {params: {_id}}, props = {}, posts = [], aboutMe, onLo
                         <Box sx={{position: "relative", left:30, top:-70,width: 350, height: 100}}>                    
                             <CardHeader
                                 avatar={
-                                <Avatar sx={{ bgcolor: red[500],width: 100, height: 100, }} alt='' aria-label="recipe" src="http://pics.livejournal.com/ucmopucm/pic/000a610c"/>
+                                <div style={{width: 100, height: 100,}}>
+                                    {/* "62fb815073ca650acb933a13" */}
+                                    {/* "62fb7f9e73ca650acb933a11" */}
+                                <ModeIcon onClick={async() =>  {await onProfileChange("62fb815073ca650acb933a13", "SobakaSutulaya"); onLoadUserInf(_id); changePopUpDropMenu(!popUpDropMenu)}} sx={{fontSize: 50, color: 'white',zIndex: 3,position: "absolute",left:"42px", top:"42px", opacity: "0","&:hover": {opacity: "1"},}}/>
+                                <Avatar sx={{ bgcolor: red[500], width: 100, height: 100,}} alt='' aria-label="recipe" src={avatarSrc}><h1>{props?.login? props?.login[0].toUpperCase(): '' }</h1></Avatar>
+                                </div>
                                 }/>
                                 
-                            <Typography component={'span'} variant={'body2'}  sx={{position: "relative", left:20, top:-75}}>
-                                <h2>{props.login}</h2>
+                            <Typography component={'span'} variant={'body2'}  sx={{position: "absolute", left:180, top:50}}>
+                                <h2>{props.nick}</h2>
                                 {/* <p>{Object.values(props)[2]}</p> */}
                             </Typography>
                         </Box>

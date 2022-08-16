@@ -16,4 +16,4 @@ async dispatch => {
     }
 }
 
-export default actionPromise
+export {actionPromise, actionFulfilled}

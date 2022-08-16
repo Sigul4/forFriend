@@ -1,6 +1,6 @@
 
 import actionFullLogin  from "./actionFullLogin";
-import actionPromise    from "./actionPromise";
+import {actionPromise}    from "./actionPromise"
 import gql              from "../helpers/gql";
 
 const actionFullRegister = (login, password) =>

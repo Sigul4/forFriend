@@ -11,10 +11,10 @@ import Drop from './DropZone.js';
 
 
 
-export default function CreatePost ({_id, defaultTitle='', defaultText='', defaultImages = [],onStopChange, onChange,  valueOfLoadingPicture, actionBackToStart}){
+export default function CreatePost ({_id, defaultTitle='', defaultText='', defaultImages = [],onStopChange, onChange}){
     
     const [images, ChangeImages] = useState(defaultImages)
-    const [imagesIds, ChangeImagesIds] = useState(defaultImages)
+    const [imagesIds, ChangeImagesIds] = useState(defaultImages.map(img => {return {_id: img._id}}))
     
     const [title, ChangeTitle] = useState(defaultTitle)
     const [text, ChangeText] = useState(defaultText)
@@ -22,6 +22,9 @@ export default function CreatePost ({_id, defaultTitle='', defaultText='', defau
     useEffect(()=>{
         console.log(images)
     },[images])
+
+    
+    console.log("imagesIds",imagesIds)
 
     return (
             <Card sx={{textAlign: "left", padding: "40px", marginBottom: "20px"}}>
@@ -47,8 +50,8 @@ export default function CreatePost ({_id, defaultTitle='', defaultText='', defau
                         />
                     <Drop imageData={(image) => {
                         console.log('!!!!!',image)
-                        ChangeImages(prevArray => prevArray.concat(image.map((img) => {return {url: `${URL}${img.url}`}})))
-                        ChangeImagesIds(prevArray => prevArray.concat(image.map((img) => {return {_id: img._id}})))
+                        ChangeImages(prevArray => prevArray ? prevArray.concat(image.map((img) => {return {url: `${URL}${img.url}`}})): image.map((img) => {return {url: `${URL}${img.url}`}}))
+                        ChangeImagesIds(prevArray => prevArray ? prevArray.concat(image.map((img) => {return {_id: img._id}})): image.map((img) => {return {_id: img._id}}))
                         }} onUpload={uploadFile}/>
                     <div style={{display: "flex"}}>
                         {Array.isArray(images) ? images.map((image, index) => 
@@ -61,7 +64,7 @@ export default function CreatePost ({_id, defaultTitle='', defaultText='', defau
                                 sx={{width: "10%"}}
                             />) : ''}
                     </div>
-                    Select images: {images?.length}{images?.length === 0}{console.log('imagesssss',images?.length === 0)}
+                    {/* Select images: {images?.length}{images?.length === 0}{console.log('imagesssss',images?.length === 0)} */}
                     {/* <Button onClick={()=>{}}><h3>Drop to start values</h3></Button> */}
                     <Button onClick={() => {images?.length === 0 ? onChange(newPost(title, text, _id)): onChange(newPostWithImages(title, text, imagesIds, _id));}}><h3>Add post</h3></Button>
                 </form> 

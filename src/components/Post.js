@@ -37,15 +37,17 @@ export default function Post({userId, postId, title, text, createdAt,comments, o
 
   const date = new Date(createdAt*1).toDateString()
 
-  console.log('likes',likes)
+  // console.log('likes',likes)
 
   // console.log('owner', owner)
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
 
-  const likesInf = Object.values(likes).map(like => {if(like.owner._id === userId) return like._id}).filter(element => element !== undefined)
+  const likesInf = likes ? Object.values(likes).map(like => {if(like.owner._id === userId) return like._id}).filter(element => element !== undefined) :() =>{}
   const [statusOfLike, setStatus] = React.useState(!!likesInf.length)
+
+  if (images) console.log('images._id',Object.values(images))
 
   return (
     <Card sx={{ maxWidth: 500, width: "100%", marginBottom: "40px" }}  >

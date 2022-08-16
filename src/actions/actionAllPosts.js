@@ -1,28 +1,31 @@
-import gql              from "../helpers/gql"
-import actionPromise    from "./actionPromise"
-import actionAboutMe    from "../actions/actionAboutMe";
+import gql                  from "../helpers/gql"
+import {actionFulfilled}    from "./actionPromise"
+import actionAboutMe        from "../actions/actionAboutMe";
 
 
-const actionAllPosts = (howMuchToSkip=0) =>
+const actionAllPosts = () =>
 async (dispatch, getState) => {
-        console.log('actionAllPosts, we skip ',howMuchToSkip)
-        
-        await dispatch(actionAboutMe(getState().auth.payload.sub.id))
-        const state = getState()
-        console.log('state.promise?.aboutMe?.payload?.following',state.promise?.aboutMe?.payload?.following)
+    let howMuchToSkip
+    await dispatch(actionAboutMe(getState().auth.payload.sub.id))
 
-        const arrOfFollows = state.promise?.aboutMe?.payload?.following.map(follow => follow._id)
-        console.log(arrOfFollows)
-        const gqlQuery = 
-        `query post($query:String){
-            PostFind(query:$query){
-                _id title text images{url} createdAt comments{_id createdAt text likesCount owner{_id login} answerTo{_id}} directs{text} likesCount 
-                owner{_id login} likes{_id owner{_id}}
-            }
-        }`
-        const gqlPromise = gql(gqlQuery, {"query":  JSON.stringify([{___owner: {$in: arrOfFollows}},{limit:[4],skip:[howMuchToSkip],sort:[{_id:-1}]}])})
-        const action     = actionPromise('AllPosts', gqlPromise) 
-        await dispatch(action)
-    }
+    const posts = getState().promise?.AllPosts?.payload
+    const arrOfFollows = getState().promise?.aboutMe?.payload?.following.map(follow => follow._id)
+    
+    posts ? howMuchToSkip = posts.length: howMuchToSkip = 0 
+
+    console.log('howMuchToSkip',howMuchToSkip, posts)
+
+    const gqlQuery = 
+    `query post($query:String){
+        PostFind(query:$query){
+            _id title text images{_id url} createdAt comments{_id createdAt text likesCount owner{_id login} answerTo{_id}} directs{text} likesCount 
+            owner{_id login} likes{_id owner{_id}}
+        }
+    }`
+    const gqlPromise = await gql(gqlQuery, {"query":  JSON.stringify([{___owner: {$in: arrOfFollows}},{limit:[10],skip:[howMuchToSkip],sort:[{_id:-1}]}])})
+
+    const action = posts ? actionFulfilled('AllPosts', [...posts, ...gqlPromise]) : actionFulfilled('AllPosts', gqlPromise) 
+    await dispatch(action)
+}
 
 export default actionAllPosts 

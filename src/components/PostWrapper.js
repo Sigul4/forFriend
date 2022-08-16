@@ -13,18 +13,20 @@ export default function PostWrapper({ post, aboutMe, postLike, postUnlike, chang
     }, [changer]);
 
     const deletePost = () =>{
-        changePostsToDelete(postData._id)
+        console.log('postData',postData)
         changeDeletness(!deletedPost)
+        changePostsToDelete(postData._id)
     }
 
     const recover = (id) =>{
-        recoverPost(id)
         changeDeletness(!deletedPost)
+        recoverPost(id)
     }
 
     const showData = async (data) => {
-        changeData(await data);
         switchChange(!changer);
+        changeData(await data);
+        console.log('data',data)
     };
     return (
         <>
@@ -61,6 +63,7 @@ export default function PostWrapper({ post, aboutMe, postLike, postUnlike, chang
                 onStopChange={() => switchChange(!changer)}
             />
         )}
+        {console.log('postData.images',postData)}
         </>
     );
 }

@@ -8,7 +8,7 @@ const actionAuthLogin = (token) =>
     if (newState !== oldState && token){
         localStorage.authToken = token
         if((history.location.pathname === '/login' || history.location.pathname === '/register') && localStorage.length !== 0){
-            history.push("/content")
+            // history.push("/content")
         }
     }
     else alert("Такого юзера нима!")

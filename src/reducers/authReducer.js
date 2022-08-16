@@ -17,7 +17,7 @@ export default function authReducer(state={}, {type, token}){
             return {token, payload}
     }
     if (type === 'AUTH_LOGOUT'){
-        history.push('/login')
+        // history.push('/login')
         return {}
     }
     return state
